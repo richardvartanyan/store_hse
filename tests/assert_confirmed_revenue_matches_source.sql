@@ -24,6 +24,7 @@ mart_revenue as (
     where is_confirmed =true
 )
 
+
 --сравниваю одно с другим
 select
     s.revenue as source_revenue,
