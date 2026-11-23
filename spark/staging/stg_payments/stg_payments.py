@@ -17,8 +17,7 @@ spark = (
     .config("spark.hadoop.fs.s3a.secret.key", os.environ.get('MINIO_ROOT_PASSWORD'))
     .config("spark.hadoop.fs.s3a.path.style.access", "true")
     .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
-    .config("spark.sql.sources.partitionOverwriteMode", "dynamic")  # перезапись только затронутых партиций
-
+    .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
     .getOrCreate()
 )
 spark.sparkContext.setLogLevel("WARN")
@@ -31,8 +30,7 @@ load_date = datetime.strptime(args.load_date, "%Y-%m-%d").date()
 start_date = load_date - timedelta(days=3)
 
 
-# source: raw/payments (партиционирован по paid_dt), partition pruning по окну инкремента.
-# ⚠️ pending-платежи (paid_dt IS NULL -> __HIVE_DEFAULT_PARTITION__) перечитываем ВСЕГДА
+# рассматриваю платежи за последние 3 дня и все платежи без дат
 df_payments = (
     spark.read.parquet(f"s3a://{BUCKET}/raw/payments")
     .filter(
@@ -52,10 +50,9 @@ df_stg_payments = (
     )
 )
 
-# Колонка партиционирования: paid_at IS NULL -> партиция __HIVE_DEFAULT_PARTITION__
+# дата партиционирования
 df_stg_payments = df_stg_payments.withColumn("paid_dt", F.to_date("paid_at"))
 
-# dynamic overwrite перезапишет только партиции окна (+ default-партицию)
 (
     df_stg_payments.write
     .format("parquet")

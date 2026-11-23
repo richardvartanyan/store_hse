@@ -10,7 +10,7 @@ with dates_range as (
     select
         min(order_date) as start_date,
         max(order_date) as end_date
-    from {{ ref('fct_orders') }}
+    from {{ ref('stg_shop__orders') }}
 )
 --извлекаю конкретные части даты (isodow - день недели цифрой)
 --латерал позволяет generate_series использовать даты из dates_range

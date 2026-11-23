@@ -16,4 +16,4 @@ select
     i.total_items
 from {{ ref('fct_orders')}} as o
 left join items_sum as i on o.order_id = i.order_id
-where i.total_items is null  or abs(o.order_amount - i.total_items) > 0.01
+where o.order_amount is distinct from i.total_items

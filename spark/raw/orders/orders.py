@@ -53,13 +53,13 @@ jdbc = dict(
 )
 
 if sink_has_data(spark, ORDERS_PATH):
-    print(f"Приёмник не пуст — инкремент [{start_date} .. {load_date}]")
+    print(f"Приёмник не пуст - инкремент [{start_date} .. {load_date}]")
     where = f"""
         WHERE order_created_at >= '{start_date}'::timestamp
           AND order_created_at <  '{load_date}'::timestamp
     """
 else:
-    print("данных в приёмнике нет — полная загрузка таблицы")
+    print("данных в приёмнике нет - полная загрузка таблицы")
     where = ""
 
 

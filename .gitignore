@@ -6,3 +6,4 @@ logs/
 .user.yml
 
 checks.log
+check.log

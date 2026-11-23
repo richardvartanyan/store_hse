@@ -58,7 +58,7 @@ if sink_has_data(spark, EVENTS_PATH):
           AND event_time < '{load_date}'::timestamp
     """
 else:
-    print("Первая загрузка — все события")
+    print("Первая загрузка - все события")
     where = ""
 
 query = f"""

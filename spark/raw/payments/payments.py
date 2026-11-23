@@ -1,3 +1,4 @@
+
 import argparse
 import os
 from datetime import datetime, timedelta
@@ -33,7 +34,7 @@ spark = (
     .config("spark.hadoop.fs.s3a.secret.key", os.environ.get('MINIO_ROOT_PASSWORD'))
     .config("spark.hadoop.fs.s3a.path.style.access", "true")
     .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
-    .config("spark.sql.sources.partitionOverwriteMode", "dynamic")  # перезапись только затронутых партиций
+    .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
     .getOrCreate()
 )
 
@@ -52,26 +53,26 @@ jdbc = dict(
 )
 
 if sink_has_data(spark, PAYMENTS_PATH):
-    print(f"Приёмник не пуст — инкремент [{start_date} .. {load_date}]")
+    print(f"Приёмник не пуст - инкремент [{start_date} .. {load_date})")
     where = f"""
         WHERE (paid_at >= '{start_date}'::timestamp
           AND paid_at <  '{load_date}'::timestamp)
            OR paid_at IS NULL
     """
 else:
-    print("Данных в приёмнике нет — полная загрузка таблицы")
+    print("Данных в приёмнике нет - полная загрузка таблицы")
     where = ""
 
-
-# Читаем данные за 3 последних дня (учебное допущение, что данные могут изменяться в течение 3-х дней)
+# ласт 3 дня и платы без дат
 query = f"""
-    SELECT payment_id
-         , order_id
-         , paid_at
-         , payment_status
-         , amount
-    FROM public.payments
-    {where}
+SELECT
+    payment_id,
+    order_id,
+    paid_at,
+    payment_status,
+    amount
+FROM public.payments
+{where}
 """
 
 df_payments = (
@@ -81,10 +82,10 @@ df_payments = (
     .load()
 )
 
-# Партиционирование: paid_dt = date(paid_at)
+# Создаю дату для партиционирования (для pending она будет NULL).
 df_payments = df_payments.withColumn("paid_dt", F.to_date("paid_at"))
 
-# Перезапись: благодаря dynamic overwrite перезаписываются только 3 затронутые партиции
+# Перезаписываю только затронутые партиции.
 (
     df_payments.write
     .format("parquet")

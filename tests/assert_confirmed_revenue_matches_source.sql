@@ -30,4 +30,4 @@ select
     m.revenue as mart_revenue
 from source_revenue as  s
 cross join mart_revenue as m
-where abs(s.revenue - m.revenue) > 0.01
+where s.revenue is distinct from m.revenue
