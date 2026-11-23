@@ -35,11 +35,12 @@ jdbc = dict(
 )
 
 query = """
-    SELECT customer_id
-         , registered_at
-         , city
-         , acquisition_channel
-    FROM public.customers
+SELECT
+    customer_id,
+    registered_at,
+    city,
+    acquisition_channel
+FROM public.customers
 """
 
 df_customers = (
